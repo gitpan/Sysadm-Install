@@ -1,5 +1,5 @@
 ######################################################################
-    Sysadm::Install 0.13
+    Sysadm::Install 0.14
 ######################################################################
 
 NAME
@@ -38,6 +38,11 @@ DESCRIPTION
     installation tasks: Copying files, extracting tarballs, calling "make".
     It has a "fail once and die" policy, meticulously checking the result of
     every operation and calling "die()" immeditatly if anything fails.
+
+    "Sysadm::Install" also supports a *dry_run* mode, in which it logs
+    everything, but suppresses any write actions. Dry run mode is enabled by
+    calling Sysadm::Install::dry_run(1). To switch back to normal, call
+    Sysadm::Install::dry_run(0).
 
   FUNCTIONS
     "cp($source, $target)"
@@ -249,6 +254,15 @@ DESCRIPTION
     "perm_cp($src, $dst, ...)"
         Read the $src file's user permissions and modify all $dst files to
         reflect the same permissions.
+
+    "$perms = perm_get($filename)"
+        Read the $filename's user permissions and owner/group. Returns an
+        array ref to be used later when calling "perm_set($filename,
+        $perms)".
+
+    "perm_set($filename, $perms)"
+        Set file permissions and owner of $filename according to $perms,
+        which was previously acquired by calling "perm_get($filename)".
 
     "sysrun($cmd)"
         Run a shell command via "system()" and die() if it fails. Also works
