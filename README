@@ -1,5 +1,5 @@
 ######################################################################
-    Sysadm::Install 0.05
+    Sysadm::Install 0.06
 ######################################################################
 
 NAME
@@ -87,6 +87,18 @@ DESCRIPTION
 
             # Replace all 'foo's by 'bar' in test.dat
                 pie(sub { s/foo/bar/g; $_; }, "test.dat");
+
+        Works with one or more file names.
+
+    "plough($coderef, $filename, ...)"
+        Simulate "perl -ne 'do something' file". Iterates over all lines of
+        all input files and calls the subroutine provided as the first
+        argument.
+
+        Example:
+
+            # Print all lines containing 'foobar'
+                plough(sub { print if /foobar/ }, "test.dat");
 
         Works with one or more file names.
 
