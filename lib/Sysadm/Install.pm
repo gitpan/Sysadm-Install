@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use File::Copy;
 use File::Path;
@@ -17,7 +17,6 @@ use File::Spec::Functions qw(rel2abs abs2rel);
 use Archive::Tar;
 use Cwd;
 use File::Temp;
-use Expect;
 
 our @EXPORTABLE = qw(
 cp rmf mkd cd make 
@@ -25,7 +24,8 @@ cdback download untar
 pie slurp blurt mv tap 
 plough qquote perm_cp
 sysrun untar_in pick ask
-hammer
+hammer say
+sudo_me bin_find
 );
 
 our %EXPORTABLE = map { $_ => 1 } @EXPORTABLE;
@@ -84,7 +84,7 @@ Sysadm::Install - Typical installation tasks for system administrators
   make("test install");
 
      # run a cmd and tap into stdout and stderr
-  my($stdout, $stderr) = tap("ls -R");
+  my($stdout, $stderr, $exit_code) = tap("ls", "-R");
 
 =head1 DESCRIPTION
 
@@ -572,33 +572,43 @@ sub blurt {
 
 =pod
 
-=item C<($stdout, $stderr) = tap($cmd)>
+=item C<($stdout, $stderr, $exit_code) = tap($cmd, @args)>
 
-Run a command C<$cmd> in the shell, capture STDOUT and STDERR, and
-return them as strings.
+Run a command $cmd in the shell, and pass it @args as args.
+Capture STDOUT and STDERR, and return them as strings. If
+C<$exit_code> is 0, the command succeeded. If it is different,
+the command failed and $exit_code holds its exit code.
+
+Please note that C<tap()> is limited to single shell commands, it
+won't work with output redirectors (C<ls E<gt>/tmp/foo>), pipes
+(C<ls | grep foo>), or commands concatenated with semicolons
+(C<ls /etc; ls /tmp>).
 
 =cut
 
 ###############################################
 sub tap {
 ###############################################
-    my($cmd) = @_;
+    my(@args) = @_;
 
     my $tmpfh   = File::Temp->new(UNLINK => 1, SUFFIX => '.dat');
     my $tmpfile = $tmpfh->filename();
 
     DEBUG "tempfile $tmpfile created";
 
+    my $cmd = join ' ', map { qquote($_, ":shell") } @args;
     $cmd = "$cmd 2>$tmpfile |";
-    INFO "tap $cmd";
+    INFO "tapping $cmd";
 
     open PIPE, $cmd or LOGDIE "open $cmd | failed ($!)";
     my $stdout = join '', <PIPE>;
-    close PIPE or LOGDIE "close $cmd failed ($!)";
+    close PIPE;
+
+    my $exit_code = $?;
 
     my $stderr = slurp($tmpfile);
 
-    return ($stdout, $stderr);
+    return ($stdout, $stderr, $exit_code);
 }
 
 =pod
@@ -710,7 +720,9 @@ sub perm_cp {
 
 =item C<sysrun($cmd)>
 
-Run a shell command via C<system()> and die() if it fails.
+Run a shell command via C<system()> and die() if it fails. Also 
+works with a list of arguments, which are then interpreted as program
+name plus arguments, just like C<system()> does it.
 
 =cut
 
@@ -740,6 +752,8 @@ sub hammer {
 ######################################
     my(@cmds) = @_;
 
+    require Expect;
+
     my $exp = Expect->new();
     $exp->raw_pty(0);
 
@@ -748,6 +762,76 @@ sub hammer {
 
     $exp->send_slow(0.1, "\n") for 1..199;
     $exp->expect(undef);
+}
+
+=pod
+
+=item C<say($text, ...)>
+
+Alias for C<print ..., "\n">, just like Perl6 is going to provide it.
+
+=cut
+
+######################################
+sub say {
+######################################
+    print @_, "\n";
+}
+
+=pod
+
+=item C<sudo_me()>
+
+Check if the current script is running as root. If yes, continue. If not,
+restart the current script with all command line arguments is restarted
+under sudo:
+
+    sudo scriptname args ...
+
+Make sure to call this before any C<@ARGV>-modifying functions like
+C<getopts()> have kicked in.
+
+=cut
+
+######################################
+sub sudo_me {
+######################################
+    my($argv) = @_;
+
+    $argv = \@ARGV unless $argv;
+
+       # If we're not running as root, 
+       # re-invoke the script via sudo
+    if($> != 0) {
+        DEBUG "Not running as root, calling sudo $0 @$argv";
+        my $sudo = bin_find("sudo");
+        LOGDIE "Can't find sudo in PATH" unless $sudo;
+        exec($sudo, $0, @$argv) or LOGDIE "exec failed!";
+    }
+}
+
+=pod
+
+=item C<bin_find($program)>
+
+Search all directories in $PATH (the ENV variable) for an executable
+named $program and return the full path of the first hit. Returns
+C<undef> if the program can't be found.
+
+=cut
+
+######################################
+sub bin_find {
+######################################
+    my($exe) = @_;
+
+    for my $path (split /:/, $ENV{PATH}) {
+        my $full = File::Spec->catfile($path, $exe);
+
+        return $full if -x $full;
+    }
+
+    return undef;
 }
 
 =pod

@@ -1,5 +1,5 @@
 ######################################################################
-    Sysadm::Install 0.09
+    Sysadm::Install 0.10
 ######################################################################
 
 NAME
@@ -27,7 +27,7 @@ SYNOPSIS
       make("test install");
 
          # run a cmd and tap into stdout and stderr
-      my($stdout, $stderr) = tap("ls -R");
+      my($stdout, $stderr, $exit_code) = tap("ls", "-R");
 
 DESCRIPTION
     Have you ever wished for your installation shell scripts to run
@@ -143,9 +143,16 @@ DESCRIPTION
         file. If $append is set to a true value, data will be appended to
         the file. Default is false, existing files will be overwritten.
 
-    "($stdout, $stderr) = tap($cmd)"
-        Run a command $cmd in the shell, capture STDOUT and STDERR, and
-        return them as strings.
+    "($stdout, $stderr, $exit_code) = tap($cmd, @args)"
+        Run a command $cmd in the shell, and pass it @args as args. Capture
+        STDOUT and STDERR, and return them as strings. If $exit_code is 0,
+        the command succeeded. If it is different, the command failed and
+        $exit_code holds its exit code.
+
+        Please note that "tap()" is limited to single shell commands, it
+        won't work with output redirectors ("ls >/tmp/foo"), pipes ("ls |
+        grep foo"), or commands concatenated with semicolons ("ls /etc; ls
+        /tmp").
 
     "$quoted_string = qquote($string, [$metachars])"
         Put a string in double quotes and escape all sensitive characters so
@@ -215,11 +222,31 @@ DESCRIPTION
         reflect the same permissions.
 
     "sysrun($cmd)"
-        Run a shell command via "system()" and die() if it fails.
+        Run a shell command via "system()" and die() if it fails. Also works
+        with a list of arguments, which are then interpreted as program name
+        plus arguments, just like "system()" does it.
 
     "hammer($cmd, $arg, ...)"
         Run a command in the shell and simulate a user hammering the ENTER
         key to accept defaults on prompts.
+
+    "say($text, ...)"
+        Alias for "print ..., "\n"", just like Perl6 is going to provide it.
+
+    "sudo_me()"
+        Check if the current script is running as root. If yes, continue. If
+        not, restart the current script with all command line arguments is
+        restarted under sudo:
+
+            sudo scriptname args ...
+
+        Make sure to call this before any @ARGV-modifying functions like
+        "getopts()" have kicked in.
+
+    "bin_find($program)"
+        Search all directories in $PATH (the ENV variable) for an executable
+        named $program and return the full path of the first hit. Returns
+        "undef" if the program can't be found.
 
 AUTHOR
     Mike Schilli, <m@perlmeister.com>
