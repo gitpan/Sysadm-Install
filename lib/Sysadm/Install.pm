@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use File::Copy;
 use File::Path;
@@ -17,6 +17,7 @@ use File::Spec::Functions qw(rel2abs abs2rel);
 use Archive::Tar;
 use Cwd;
 use File::Temp;
+use Expect;
 
 our @EXPORTABLE = qw(
 cp rmf mkd cd make 
@@ -24,6 +25,7 @@ cdback download untar
 pie slurp blurt mv tap 
 plough qquote perm_cp
 sysrun untar_in pick ask
+hammer
 );
 
 our %EXPORTABLE = map { $_ => 1 } @EXPORTABLE;
@@ -266,7 +268,7 @@ sub pick {
     my %files;
 
     if(@_ != 3 or ref($options) ne "ARRAY") {
-        die "Pick::list called with wrong #/type of args";
+        die "pick called with wrong #/type of args";
     }
     
     {
@@ -280,9 +282,9 @@ sub pick {
     
         print STDERR "$prompt [$default_int]> ";
         my $input = <STDIN>;
-        chomp($input);
+        chomp($input) if defined $input;
 
-        $input = $default_int unless length($input);
+        $input = $default_int if !defined $input or !length($input);
 
         redo if $input !~ /^\d+$/ or 
                 $input == 0 or 
@@ -572,7 +574,7 @@ sub blurt {
 
 =item C<($stdout, $stderr) = tap($cmd)>
 
-Rund a command C<$cmd> in the shell, capture STDOUT and STDERR, and
+Run a command C<$cmd> in the shell, capture STDOUT and STDERR, and
 return them as strings.
 
 =cut
@@ -637,7 +639,7 @@ optional argument, consisting of a string listing  all escapable characters:
     => 1212 rocks!
 
 And there's a shortcut for shells: By specifying ':shell' as the
-metacharacters string, qquote() will actually use '!$[]()+?'.
+metacharacters string, qquote() will actually use '!$`'.
 
 For example, if you wanted to run the perl code
 
@@ -674,7 +676,7 @@ sub qquote {
     $str =~ s/([\\"])/\\$1/g;
 
     if(defined $metas) {
-        $metas = '!$[]()+?' if $metas eq ":shell";
+        $metas = '!$`' if $metas eq ":shell";
         $metas =~ s/\]/\\]/g;
         $str =~ s/([$metas])/\\$1/g;
     }
@@ -722,6 +724,30 @@ sub sysrun {
     INFO "sysrun: @cmds";
 
     system(@cmds) and LOGDIE "@cmds failed ($!)";
+}
+
+=pod
+
+=item C<hammer($cmd, $arg, ...)>
+
+Run a command in the shell and simulate a user hammering the
+ENTER key to accept defaults on prompts.
+
+=cut
+
+######################################
+sub hammer {
+######################################
+    my(@cmds) = @_;
+
+    my $exp = Expect->new();
+    $exp->raw_pty(0);
+
+    INFO "spawning: @cmds";
+    $exp->spawn(@cmds);
+
+    $exp->send_slow(0.1, "\n") for 1..199;
+    $exp->expect(undef);
 }
 
 =pod

@@ -2,6 +2,10 @@
 Revision history for Sysadm::Install
 ########################################
 
+0.09 (12/04/2004)
+    (ms) added hammer() and dependency on Expect
+    (ms) corrected shell escapes with qquote()
+
 0.08 (11/24/2004)
     (ms) added perm_cp() to copy file permissions
     (ms) added untar_in() to untar tarballs in specified directories
