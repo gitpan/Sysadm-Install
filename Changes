@@ -1,0 +1,15 @@
+########################################
+Revision history for Sysadm::Install
+########################################
+
+0.04 (10/08/2004)
+    (ms) Fixed untar and test suite
+
+0.03 (10/08/2004)
+    (ms) Added slurp/blurt and pie() to support 'perl -pie ...'-like commands
+
+0.02 (07/17/2004)
+    (ms) Added untar()
+
+0.01 (07/16/2004)
+    (ms) Where it all began.
