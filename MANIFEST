@@ -10,5 +10,6 @@ t/001.t
 t/002tar.t
 t/003slurp.t
 t/004plough.t
+t/005qquote.t
 t/canned/test.tar
 t/canned/testa.tar

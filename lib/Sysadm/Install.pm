@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use File::Copy;
 use File::Path;
@@ -21,7 +21,7 @@ our @EXPORTABLE = qw(
 cp rmf mkd cd make 
 cdback download untar 
 pie slurp blurt mv tap 
-plough
+plough qquote
 );
 
 our %EXPORTABLE = map { $_ => 1 } @EXPORTABLE;
@@ -475,6 +475,89 @@ sub tap {
     my $stderr = slurp($tmpfile);
 
     return ($stdout, $stderr);
+}
+
+=pod
+
+=item C<$quoted_string = qquote($string, [$metachars])>
+
+Put a string in double quotes and escape all sensitive characters so
+there's no unwanted interpolation. 
+E.g., if you have something like
+
+   print "foo!\n";
+
+and want to put it into a double-quoted string, it will look like
+
+    "print \"foo!\\n\""
+
+Sometimes, not only backslashes and double quotes need to be escaped,
+but also the target environment's meta chars. A string containing
+
+    print "$<\n";
+
+needs to have the '$' escaped like
+
+    "print \"\$<\\n\";"
+
+if you want to reuse it later in a shell context:
+
+    $ perl -le "print \"\$<\\n\";"
+    1212
+
+C<qquote()> supports escaping these extra characters with its second,
+optional argument, consisting of a string listing  all escapable characters:
+
+    my $script  = 'print "$< rocks!\\n";';
+    my $escaped = qquote($script, '!$'); # Escape for shell use
+    system("perl -e $escaped");
+
+    => 1212 rocks!
+
+And there's a shortcut for shells: By specifying ':shell' as the
+metacharacters string, qquote() will actually use '!$[]()+?'.
+
+For example, if you wanted to run the perl code
+
+    print "foobar\n";
+
+via
+
+    perl -e ...
+
+on a box via ssh, you would use
+
+    use Sysadm::Install qw(qquote);
+
+    my $cmd = 'print "foobar!\n"';
+       $cmd = "perl -e " . qquote($cmd, ':shell');
+       $cmd = "ssh somehost " . qquote($cmd, ':shell');
+
+    print "$cmd\n";
+    system($cmd);
+
+and get
+
+    ssh somehost "perl -e \"print \\\"foobar\\\!\\\\n\\\"\""
+
+which runs on C<somehost> without hickup and prints C<foobar!>.
+
+=cut
+
+###############################################
+sub qquote {
+###############################################
+    my($str, $metas) = @_;
+
+    $str =~ s/([\\"])/\\$1/g;
+
+    if(defined $metas) {
+        $metas = '!$[]()+?' if $metas eq ":shell";
+        $metas =~ s/\]/\\]/g;
+        $str =~ s/([$metas])/\\$1/g;
+    }
+
+    return "\"$str\"";
 }
 
 =pod
