@@ -1,5 +1,7 @@
 Changes
+eg/ask
 eg/tap
+eg/untar_in
 lib/Sysadm/Install.pm
 Makefile.PL
 MANIFEST
@@ -11,5 +13,6 @@ t/002tar.t
 t/003slurp.t
 t/004plough.t
 t/005qquote.t
+t/006perm.t
 t/canned/test.tar
 t/canned/testa.tar

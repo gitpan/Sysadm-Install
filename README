@@ -1,5 +1,5 @@
 ######################################################################
-    Sysadm::Install 0.07
+    Sysadm::Install 0.08
 ######################################################################
 
 NAME
@@ -42,6 +42,9 @@ DESCRIPTION
   FUNCTIONS
     "cp($source, $target)"
         Copy a file from $source to $target. "target" can be a directory.
+        Note that "cp" doesn't copy file permissions. If you want the target
+        file to reflect the source file's user rights, use "perm_cp()" shown
+        below.
 
     "mv($source, $target)"
         Move a file from $source to $target. "target" can be a directory.
@@ -58,6 +61,36 @@ DESCRIPTION
         directory is created before the unpacking takes place. Unpacks the
         tarball into the current directory, no matter where the tarfile is
         located.
+
+    "untar_in($tar_file, $dir)"
+        Untar the tarball in $tgz_file in directory $dir. Create $dir if it
+        doesn't exist yet.
+
+    "pick($prompt, $options, $default)"
+        Ask the user to pick an item from a displayed list. $prompt is the
+        text displayed, $options is a referenc to an array of choices, and
+        $default is the number (starting from 1, not 0) of the default item.
+        For example,
+
+            pick("Pick a fruit", ["apple", "pear", "pineapple"], 3);
+
+        will display the following:
+
+            [1] apple
+            [2] pear
+            [3] pineapple
+            Pick a fruit [3]>
+
+        If the user just hits *Enter*, "pineapple" (the default value) will
+        be returned. Note that 3 marks the 3rd element of the list, and is
+        *not* an index value into the array.
+
+        If the user enters 1, 2 or 3, the corresponding text string
+        ("apple", "pear", "pineapple" will be returned by "pick()".
+
+    "ask($prompt, $default)"
+        Ask the user to either hit *Enter* and select the displayed default
+        or to type in another string.
 
     "mkd($dir)"
         Create a directory of arbitrary depth, just like
@@ -176,6 +209,13 @@ DESCRIPTION
             ssh somehost "perl -e \"print \\\"foobar\\\!\\\\n\\\"\""
 
         which runs on "somehost" without hickup and prints "foobar!".
+
+    "perm_cp($src, $dst, ...)"
+        Read the $src file's user permissions and modify all $dst files to
+        reflect the same permissions.
+
+    "sysrun($cmd)"
+        Run a shell command via "system()" and die() if it fails.
 
 AUTHOR
     Mike Schilli, <m@perlmeister.com>
