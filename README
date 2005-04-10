@@ -1,5 +1,5 @@
 ######################################################################
-    Sysadm::Install 0.15
+    Sysadm::Install 0.16
 ######################################################################
 
 NAME
@@ -44,6 +44,11 @@ DESCRIPTION
     calling Sysadm::Install::dry_run(1). To switch back to normal, call
     Sysadm::Install::dry_run(0).
 
+    "Sysadm::Install" is fully Log4perl-enabled. To start logging, just
+    initialize "Log::Log4perl". "Sysadm::Install" acts as a wrapper class,
+    meaning that file names and line numbers are reported from the calling
+    program's point of view.
+
   FUNCTIONS
     "cp($source, $target)"
         Copy a file from $source to $target. "target" can be a directory.
@@ -58,14 +63,15 @@ DESCRIPTION
         Download a file specified by $url and store it under the name
         returned by "basename($url)".
 
-    "untar($tgz_file)"
-        Untar the tarball in $tgz_file, which typically adheres to the
+    "untar($tarball)"
+        Untar the tarball in $tarball, which typically adheres to the
         "someproject-X.XX.tgz" convention. But regardless of whether the
         archive actually contains a top directory "someproject-X.XX", this
         function will behave if it had one. If it doesn't have one, a new
         directory is created before the unpacking takes place. Unpacks the
         tarball into the current directory, no matter where the tarfile is
-        located.
+        located. Please note that if you're using a compressed tarball
+        (.tar.gz or .tgz), you'll need IO::Zlib installed.
 
     "untar_in($tar_file, $dir)"
         Untar the tarball in $tgz_file in directory $dir. Create $dir if it
@@ -320,6 +326,19 @@ DESCRIPTION
     "pipe_copy($in, $out, [$bufsize])"
         Reads from $in and writes to $out, using sysread and syswrite. The
         buffer size used defaults to 4096, but can be set explicitely.
+
+    "snip($data, $maxlen)"
+        Format the data string in $data so that it's only (roughly) $maxlen
+        characters long and only contains printable characters.
+
+        If $data contains unprintable character's they are replaced by "."
+        (the dot). If $data is longer than $maxlen, it will be formatted
+        like
+
+            (22)[abcdef[snip=11]stuvw]
+
+        indicating the length of the original string, the beginning, the
+        end, and the number of 'snipped' characters.
 
 AUTHOR
     Mike Schilli, <m@perlmeister.com>
