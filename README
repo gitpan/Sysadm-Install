@@ -1,5 +1,5 @@
 ######################################################################
-    Sysadm::Install 0.16
+    Sysadm::Install 0.17
 ######################################################################
 
 NAME
@@ -43,6 +43,12 @@ DESCRIPTION
     everything, but suppresses any write actions. Dry run mode is enabled by
     calling Sysadm::Install::dry_run(1). To switch back to normal, call
     Sysadm::Install::dry_run(0).
+
+    As of version 0.17, "Sysadm::Install" supports a *confirm* mode, in
+    which it interactively asks the user before running any of its functions
+    (just like "rm -i"). *confirm* mode is enabled by calling
+    Sysadm::Install::confirm(1). To switch back to normal, call
+    Sysadm::Install::confirm(0).
 
     "Sysadm::Install" is fully Log4perl-enabled. To start logging, just
     initialize "Log::Log4perl". "Sysadm::Install" acts as a wrapper class,
@@ -147,7 +153,9 @@ DESCRIPTION
         Works with one or more file names.
 
     "my $data = slurp($file)"
-        Slurps in the file and returns a scalar with the file's content.
+        Slurps in the file and returns a scalar with the file's content. If
+        called without argument, data is slurped from STDIN or from any
+        files provided on the command line (like <> operates).
 
     "blurt($data, $file, $append)"
         Opens a new file, prints the data in $data to it and closes the

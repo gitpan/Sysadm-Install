@@ -2,6 +2,15 @@
 Revision history for Sysadm::Install
 ########################################
 
+0.17 2005/04/23
+    (ms) Added interactive mode. If you call
+         Sysadm::Install::confirm(1) before running Sysadm::Install
+         commands, every writing function (cp(), mv(), untar(), pie(),
+         blurt(), ...) will ask the user to confirm before actually
+         performing what's been requested.
+    (ms) Added patch by Jud Dagnall to allow slurp() to process
+         @ARGS like <> does.
+
 0.16 2005/04/10
     (ms) Bumped up Log4perl reporting level. On typical S:I functions,
          the log message will show the *calling program*'s file name
