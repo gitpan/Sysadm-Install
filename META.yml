@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Sysadm-Install
-version:             0.23
+version:             0.24
 abstract:            Typical installation tasks for system administrators
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.31
