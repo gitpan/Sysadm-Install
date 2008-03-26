@@ -1,0 +1,134 @@
+########################################
+Revision history for Sysadm::Install
+########################################
+
+0.27 2008/03/26
+    (ms) Fixes a broken CPAN upload.
+
+0.26 2008/03/25
+    (ms) Added rc/stdout/stderr debug output to tap()
+    (ms) Added perm_get/set to export list
+    (ms) Added shell escapes for tap()
+
+0.25 2008/02/07
+    (ms) Fixed directory stack bug in cdback()
+
+0.24 2007/10/24
+    (ms) Added def_or() function to emulate the //= operator
+    (ms) Added blurt_atomic() to write data to a file, guaranteeing that
+         the operation either fully succeeds or fails. It makes sure that
+         we're not left with a partially written file in case the
+         operation gets interrupted.
+    (ms) fixed password_read() documentation bug
+
+0.23 2007/04/01
+    (ms) Added nice_time() and password_read().
+    (ms) Fixed quote($str, ":shell") to escape single quotes within
+         single quotes in a shell-compatible way.
+
+0.22 2006/09/19
+    (ms) Skipping Archive::Tar tests if A:T isn't installed
+
+0.21 2006/02/02
+    (ms) Added log messages to cp, mv, download, make.
+    (ms) untar() and untar_in() now pass the cwd value to
+         Archive::Tar's extract function to avoid excessive
+         and expensive cwd() calls (thanks to Greg Olszewski
+         for finding this performance bottleneck).
+
+0.20 2005/08/13
+    (ms) Requiring Log4perl-1.00 now to avoid a problem with the
+         test suite.
+
+0.19 2005/07/28
+    (ms) Greg Olszewski reported a bug in untar_in() with tarfiles
+         on relative paths, fixed by using one-argument version of
+         rel2abs.
+
+0.18 2005/07/14
+    (ms) Requiring File::Temp 0.16 now (S:I needs OO-API).
+    (ms) Errors are now reported via croak(), which reports the location
+         in the calling script, not in Sysadm::Install.
+
+0.17 2005/04/23
+    (ms) Added interactive mode. If you call
+         Sysadm::Install::confirm(1) before running Sysadm::Install
+         commands, every writing function (cp(), mv(), untar(), pie(),
+         blurt(), ...) will ask the user for confirmation before actually
+         performing what's been requested. Sysadm::Install::confirm(0)
+         switches back to normal.
+    (ms) Added patch by Jud Dagnall to allow slurp() to process
+         @ARGV like <> does.
+    (ms) Archive::Tar is no longer mandatory for installation, just
+         for using untar() and untar_in().
+
+0.16 2005/04/10
+    (ms) Bumped up Log4perl reporting level. On typical S:I functions,
+         the log message will show the *calling program*'s file name
+         and line number.
+    (ms) slurp() and blurp() are now displaying parts of the data 
+         read/written.
+    (ms) Added check for IO::Zlib and better error message if it's
+         not installed and a compressed tarball needs to be processed.
+    (ms) Requiring L4p 0.48 and Archive::Tar 1.23 to make sure test
+         suite succeeds.
+
+0.15 (03/17/2005)
+    (ms) Added eg/one-liner
+
+0.14 (03/10/2005)
+    (ms) Added dry-run function dry_run(1) suppressing write actions
+    (ms) Added perm_get and perm_set to compliment perm_cp
+
+0.13 (01/25/2005)
+    (ms) Makefile.PL prerequisite changed from undef to '0'.
+
+0.12 (01/15/2005)
+    (ms) Added fs_read_open(), fs_write_open() and pipe_copy()
+    (ms) blurt/slurp now report the # of bytes
+
+0.11 (01/11/2005)
+    (ms) tap() single-quotes args now by default
+    (ms) tap() allows for optional double-quoting or no-quoting
+
+0.10 (01/09/2005)
+    (ms) removed Expect dependency ('require' on demand)
+    (ms) added say()
+    (ms) added sudo_me() and bin_find()
+    (ms) tap() now returns the exit code as a third parameter. Improved
+         command handling by using qquote() to separate args.
+
+0.09 (12/04/2004)
+    (ms) added hammer() and dependency on Expect
+    (ms) corrected shell escapes with qquote()
+
+0.08 (11/24/2004)
+    (ms) added perm_cp() to copy file permissions
+    (ms) added untar_in() to untar tarballs in specified directories
+    (ms) added sysrun() to run shell commands plus logging
+    (ms) added pick() and ask() to ask for interactive user input
+
+0.07 (11/17/2004)
+    (ms) added qquote()
+
+0.06 (11/04/2004)
+    (ms) added plough
+
+0.05 (10/16/2004)
+    (ms) added mv
+    (ms) Functions not exported by default anymore. Use
+             use Sysadm::Install qw(:all)
+         to get the old behaviour.
+    (ms) added tap
+
+0.04 (10/08/2004)
+    (ms) Fixed untar and test suite
+
+0.03 (10/08/2004)
+    (ms) Added slurp/blurt and pie() to support 'perl -pie ...'-like commands
+
+0.02 (07/17/2004)
+    (ms) Added untar()
+
+0.01 (07/16/2004)
+    (ms) Where it all began.
