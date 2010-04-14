@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.34';
+our $VERSION = '0.35';
 
 use File::Copy;
 use File::Path;
@@ -84,6 +84,7 @@ fs_read_open fs_write_open pipe_copy
 snip password_read nice_time
 def_or blurt_atomic
 is_utf8_data utf8_available
+printable
 );
 
 our %EXPORTABLE = map { $_ => 1 } @EXPORTABLE;
@@ -188,7 +189,8 @@ shown below.
 sub cp {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm("cp $_[0] $_[1]") or return 1;
 
@@ -210,7 +212,8 @@ Move a file from C<$source> to C<$target>. C<target> can be a directory.
 sub mv {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm("mv $_[0] $_[1]") or return 1;
 
@@ -234,7 +237,8 @@ sub download {
 ###############################################
     my($url) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     INFO "download $url";
 
@@ -279,7 +283,9 @@ IO::Zlib installed.
 ###############################################
 sub untar {
 ###############################################
-    local($Log::Log4perl::caller_depth) += 1;
+
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     LOGCROAK("untar called without defined tarfile") unless 
          @_ == 1 and defined $_[0];
@@ -332,7 +338,8 @@ sub untar_in {
 ###############################################
     my($tar_file, $dir) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     LOGCROAK("not enough arguments") if
       ! defined $tar_file or ! defined $dir;
@@ -386,7 +393,8 @@ sub pick {
 ##################################################
     my ($prompt, $options, $default) = @_;    
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     my $default_int;
     my %files;
@@ -432,7 +440,8 @@ sub ask {
 ##################################################
     my ($prompt, $default) = @_;    
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     if(@_ != 2) {
         LOGCROAK("ask() called with wrong # of args");
@@ -461,7 +470,8 @@ Create a directory of arbitrary depth, just like C<File::Path::mkpath>.
 sub mkd {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "mkd @_" or return 1;
 
@@ -484,7 +494,8 @@ in the shell.
 sub rmf {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "rmf $_[0]" or return 1;
 
@@ -515,7 +526,9 @@ set the stack_update parameter to a false value:
 sub cd {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
+
     INFO "cd $_[0]";
 
     my $opts = { stack_update => 1 };
@@ -545,7 +558,8 @@ chdir back to the last directory before a previous C<cd>.
 sub cdback {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     LOGCROAK("cd stack empty") unless @DIR_STACK;
 
@@ -570,7 +584,8 @@ Call C<make> in the shell.
 sub make {
 ###############################################
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "make @_" or return 1;
 
@@ -602,7 +617,8 @@ sub archive_sniff {
 #######################################
     my($name) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     DEBUG "Sniffing archive '$name'";
 
@@ -678,7 +694,8 @@ sub pie {
        $options = pop @files;
     }
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     for my $file (@files) {
 
@@ -735,7 +752,8 @@ sub plough {
         $options = pop @files;
     }
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     for my $file (@files) {
 
@@ -779,7 +797,8 @@ sub slurp {
 
     $options = {} unless defined $options;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     my $from_file = defined($file);
 
@@ -832,7 +851,8 @@ sub blurt {
 
     $options = {} unless defined $options;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     $options->{append} = 0 unless defined $options->{append};
 
@@ -886,6 +906,8 @@ sub blurt_atomic {
     my($fh, $tmpname) = tempfile(DIR => dirname($file));
 
     blurt($data, $tmpname, $options);
+
+    close $fh;
 
     rename $tmpname, $file or
         LOGDIE "Can't rename $tmpname to $file";
@@ -948,7 +970,8 @@ sub tap {
        $options = pop @args;
     }
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "tapping @args" or return 1;
 
@@ -1161,7 +1184,8 @@ sub perm_cp {
     # Lifted from Ben Okopnik's
     # http://www.linuxgazette.com/issue87/misc/tips/cpmod.pl.txt
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "perm_cp @_" or return 1;
 
@@ -1186,7 +1210,8 @@ sub perm_get {
 ######################################
     my($filename) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     my @stats = (stat $filename)[2,4,5] or
         
@@ -1212,7 +1237,8 @@ sub perm_set {
 ######################################
     my($filename, $perms) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "perm_set $filename (@$perms)" or return 1;
 
@@ -1239,7 +1265,8 @@ sub sysrun {
 ######################################
     my(@cmds) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "sysrun: @cmds" or return 1;
 
@@ -1265,7 +1292,8 @@ sub hammer {
 
     require Expect;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
         _confirm "Hammer: @cmds" or return 1;
 
@@ -1313,7 +1341,8 @@ sub sudo_me {
 ######################################
     my($argv) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     _confirm "sudo_me" or return 1;
 
@@ -1377,7 +1406,8 @@ sub fs_read_open {
 
     $options = {} unless defined $options;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     my $find = bin_find("find");
     LOGCROAK("Cannot find 'find'") unless defined $find;
@@ -1420,7 +1450,8 @@ sub fs_write_open {
 
     $options = {} unless defined $options;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     my $cpio = bin_find("cpio");
     LOGCROAK("Cannot find 'cpio'") unless defined $cpio;
@@ -1456,7 +1487,8 @@ sub pipe_copy {
 ######################################
     my($in, $out, $bufsize) = @_;
 
-    local($Log::Log4perl::caller_depth) += 1;
+    local $Log::Log4perl::caller_depth =
+          $Log::Log4perl::caller_depth + 1;
 
     $bufsize ||= 4096;
     my $bytes = 0;
@@ -1526,7 +1558,7 @@ sub printable {
 ###########################################
     my($data) = @_;
 
-    $data =~ s/[^ \w.;!?@#$%^&*()+\\|~`'-,><[\]{}="]/./g;
+    $data =~ s/[^ \w.;!?@#$%^&*()+\\|~`',><[\]{}="-]/./g;
     return $data;
 }
 

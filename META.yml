@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Sysadm-Install
-version:            0.34
+version:            0.35
 abstract:           Typical installation tasks for system administrators
 author:
     - Mike Schilli <m@perlmeister.com>
@@ -16,7 +16,7 @@ requires:
     File::Copy:      0
     File::Path:      0
     File::Temp:      0.16
-    Log::Log4perl:   1
+    Log::Log4perl:   1.28
     LWP::Simple:     0
     Term::ReadKey:   0
 resources:
