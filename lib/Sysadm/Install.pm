@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.36';
+our $VERSION = '0.37';
 
 use File::Copy;
 use File::Path;
@@ -1020,7 +1020,7 @@ sub tap {
 
     my $exit_code = $?;
 
-    if($opts->{raise_error}) {
+    if($exit_code != 0 and $opts->{raise_error}) {
         LOGCROAK("tap $cmd | failed ($!)");
     }
 
