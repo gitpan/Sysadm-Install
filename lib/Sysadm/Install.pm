@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.40';
+our $VERSION = '0.41';
 
 use File::Copy;
 use File::Path;
@@ -84,7 +84,7 @@ fs_read_open fs_write_open pipe_copy
 snip password_read nice_time
 def_or blurt_atomic
 is_utf8_data utf8_available
-printable
+printable home_dir
 );
 
 our %EXPORTABLE = map { $_ => 1 } @EXPORTABLE;
@@ -979,6 +979,12 @@ the script, use the raise_error option:
 
     tap({raise_error => 1}, "ls", "doesn't exist");
 
+In DEBUG mode, C<tap> logs the entire stdout/stderr output, which
+can get too verbose at times. To limit the number of bytes logged, use
+the C<stdout_limit> and C<stderr_limit> options
+
+    tap({stdout_limit => 10}, "echo", "123456789101112");
+
 =cut
 
 ###############################################
@@ -1038,6 +1044,14 @@ sub tap {
     }
 
     my $stderr = slurp($tmpfile, $options);
+
+    if( $opts->{ stdout_limit } ) {
+        $stdout = snip( $stdout, $opts->{ stdout_limit } );
+    }
+
+    if( $opts->{ stderr_limit } ) {
+        $stderr = snip( $stderr, $opts->{ stderr_limit } );
+    }
 
     DEBUG "tap $cmd results: rc=$exit_code stderr=[$stderr] stdout=[$stdout]";
 
@@ -1790,6 +1804,20 @@ sub utf8_available {
     return 1;
 }
 
+=item C<home_dir()>
+
+Return the path to the home directory of the current user.
+
+=cut
+
+###############################################
+sub home_dir {
+###############################################
+
+    my( $home ) = glob "~";
+
+    return $home;
+}
 
 =pod
 
