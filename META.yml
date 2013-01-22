@@ -28,4 +28,4 @@ requires:
   Term::ReadKey: 0
 resources:
   repository: http://github.com/mschilli/sysadm-install-perl
-version: 0.41
+version: 0.42
