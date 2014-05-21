@@ -6,10 +6,11 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.43';
+our $VERSION = '0.44';
 
 use File::Copy;
 use File::Path;
+use File::Which;
 use Log::Log4perl qw(:easy);
 use Log::Log4perl::Util;
 use File::Basename;
@@ -1044,18 +1045,18 @@ sub tap {
 
     my $exit_code = $?;
 
-    if($exit_code != 0 and $opts->{raise_error}) {
-        LOGCROAK("tap $cmd | failed ($!)");
-    }
-
     my $stderr = slurp($tmpfile, $options);
-
-    if( $opts->{ stdout_limit } ) {
-        $stdout = snip( $stdout, $opts->{ stdout_limit } );
-    }
 
     if( $opts->{ stderr_limit } ) {
         $stderr = snip( $stderr, $opts->{ stderr_limit } );
+    }
+
+    if($exit_code != 0 and $opts->{raise_error}) {
+        LOGCROAK("tap $cmd | failed ($stderr)");
+    }
+
+    if( $opts->{ stdout_limit } ) {
+        $stdout = snip( $stdout, $opts->{ stdout_limit } );
     }
 
     DEBUG "tap $cmd results: rc=$exit_code stderr=[$stderr] stdout=[$stdout]";
@@ -1465,17 +1466,9 @@ sub bin_find {
 ######################################
     my($exe) = @_;
 
-    require Config;
-    my $path_sep = ":";
-    $path_sep = $Config::Config{path_sep} if defined $Config::Config{path_sep};
-
-    for my $path (split /$path_sep/, $ENV{PATH}) {
-        my $full = File::Spec->catfile($path, $exe);
-
-        return $full if -x $full and ! -d $full;
-    }
-
-    return undef;
+      # File::Which returns a list in list context, we just want the first
+      # match.
+    return scalar File::Which::which( $exe );
 }
 
 =pod
